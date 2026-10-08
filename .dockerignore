@@ -1,0 +1,19 @@
+# 运行期数据（容器内生成，走 named volume）
+data/
+
+# 依赖与缓存
+.venv/
+node_modules/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.ruff_cache/
+.pytest_cache/
+.idea/
+.vscode/
+.git/
+
+# 体积 / 开发期文件
+*.png
+.env

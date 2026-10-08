@@ -9,6 +9,11 @@
 
 说明：本服务为演示用模拟认证中心，账号与凭据均存于内存；生产请替换为真实认证中心
 （只需保证 /oauth/token 与 /oauth/userinfo 两个接口契约一致）。
+
+配置来源与后端保持一致（进程环境变量 > .env 文件 > 内置默认值）：
+    PUBLIC_BASE_URL            浏览器访问后端的基地址，后端用它拼 OAuth redirect_uri
+    OAUTH_ALLOWED_REDIRECTS    显式白名单，逗号分隔；设置后优先生效
+    BACKEND_PORT               后端端口，仅在未配置 PUBLIC_BASE_URL 时用于推导白名单
 """
 from __future__ import annotations
 
@@ -16,6 +21,11 @@ import html
 import os
 from pathlib import Path
 from urllib.parse import urlencode
+
+try:  # python-dotenv 已是本项目依赖；缺失时退化为「只读环境变量」
+    from dotenv import dotenv_values
+except ImportError:  # pragma: no cover
+    dotenv_values = None  # type: ignore[assignment]
 
 from fastapi import FastAPI, Form, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
@@ -28,20 +38,69 @@ from auth_service import users as store  # noqa: E402
 
 app = FastAPI(title="认证中心（模拟）", version="0.1.0")
 
-CLIENT_ID = os.environ.get("OAUTH_CLIENT_ID", "star-demo")
-CLIENT_SECRET = os.environ.get("OAUTH_CLIENT_SECRET", "star-demo-secret")
-BACKEND_PORT = os.environ.get("BACKEND_PORT", "8000")
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+_ENV_FILE_CACHE: dict[str, str] | None = None
+
+
+def _dotenv_settings() -> dict[str, str]:
+    """读取项目根目录 .env（缓存一次）。缺失或解析失败时返回空字典。"""
+    global _ENV_FILE_CACHE
+    if _ENV_FILE_CACHE is None:
+        _ENV_FILE_CACHE = {}
+        env_path = BASE_DIR / ".env"
+        if dotenv_values is not None and env_path.exists():
+            try:
+                _ENV_FILE_CACHE = {
+                    k: v for k, v in dotenv_values(env_path).items() if v is not None and v != ""
+                }
+            except Exception:
+                _ENV_FILE_CACHE = {}
+    return _ENV_FILE_CACHE
+
+
+def _setting(name: str, default: str) -> str:
+    """进程环境变量 > .env 文件 > 默认值；与 backend.config._server_setting 同一口径。"""
+    val = os.environ.get(name)
+    if val:
+        return val
+    val = _dotenv_settings().get(name)
+    return val if val else default
+
+
+CLIENT_ID = _setting("OAUTH_CLIENT_ID", "star-demo")
+CLIENT_SECRET = _setting("OAUTH_CLIENT_SECRET", "star-demo-secret")
+BACKEND_PORT = _setting("BACKEND_PORT", "8000")
 
 
 def _allowed_redirects() -> set[str]:
-    """回调地址白名单。默认只允许本机后端的 /auth/callback。"""
-    raw = os.environ.get("OAUTH_ALLOWED_REDIRECTS", "")
+    """回调地址白名单。
+
+    优先级：
+      1. 显式配置 OAUTH_ALLOWED_REDIRECTS（逗号分隔）—— 留空即视为未设置；
+      2. 跟随 PUBLIC_BASE_URL 推导 —— 后端就是用这个地址拼 redirect_uri 的，
+         因此单独配置 PUBLIC_BASE_URL 即可完成部署，白名单自动对齐；
+      3. 都没有时回退到本机后端，保证 .env 不存在时的默认开发体验不变。
+    """
+    raw = _setting("OAUTH_ALLOWED_REDIRECTS", "")
     if raw:
         return {item.strip() for item in raw.split(",") if item.strip()}
-    return {
+
+    default = {
         f"http://localhost:{BACKEND_PORT}/auth/callback",
         f"http://127.0.0.1:{BACKEND_PORT}/auth/callback",
     }
+
+    base = _setting("PUBLIC_BASE_URL", "").rstrip("/")
+    if not base:
+        return default
+
+    # localhost 与 127.0.0.1 是两个不同的主机名，两个都放行，避免因写法差异 400
+    hosts = {base}
+    for src, dst in (("//localhost", "//127.0.0.1"), ("//127.0.0.1", "//localhost")):
+        if base.startswith(f"http:{src}") or base.startswith(f"https:{src}"):
+            hosts.add(base.replace(src, dst, 1))
+    return {f"{host}/auth/callback" for host in hosts} | default
 
 
 # 内联 SVG 图标：认证中心保持零静态资源依赖，同时避免浏览器请求 /favicon.ico 产生 404
