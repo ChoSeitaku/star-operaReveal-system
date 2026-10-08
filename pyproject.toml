@@ -1,0 +1,20 @@
+[project]
+name = "star-operareveal-system"
+version = "0.1.0"
+description = "经营归因分析系统 — 多轮归因分析工作台（认证中心 + 分析后端 + 零构建前端）"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "aiosqlite",
+    "httpx",
+    "python-multipart",
+    "openpyxl",
+    "websockets",
+    "python-dotenv",
+]
+
+[tool.uv]
+# pypi.org 在演示环境不可达，统一走清华镜像安装：
+#   uv pip install --index-url https://pypi.tuna.tsinghua.edu.cn/simple -e .
+index-url = "https://pypi.tuna.tsinghua.edu.cn/simple"

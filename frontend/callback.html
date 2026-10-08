@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>登录回调 · 经营归因分析系统</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="center-page">
+  <div class="hero">
+    <div class="card panel">
+      <!-- 处理中 -->
+      <div id="state-wait">
+        <div class="spinner"></div>
+        <h1 style="font-size:18px;margin:20px 0 8px;">正在完成登录…</h1>
+        <p class="lead" style="margin:0;">正在校验授权结果并建立登录态，请稍候。</p>
+      </div>
+
+      <!-- 成功 -->
+      <div id="state-ok" style="display:none;">
+        <div class="status-icon status-ok">✓</div>
+        <h1 style="font-size:18px;margin:0 0 8px;">登录成功</h1>
+        <p class="lead" id="ok-detail" style="margin:0 0 20px;"></p>
+        <button class="btn btn-primary" id="goto-btn" type="button">进入聊天工作台</button>
+      </div>
+
+      <!-- 失败 -->
+      <div id="state-err" style="display:none;">
+        <div class="status-icon status-err">!</div>
+        <h1 style="font-size:18px;margin:0 0 8px;">登录失败</h1>
+        <p class="lead" id="err-detail" style="margin:0 0 20px;"></p>
+        <button class="btn btn-primary" id="retry-btn" type="button">重新登录</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module" src="/js/callback.js"></script>
+</body>
+</html>

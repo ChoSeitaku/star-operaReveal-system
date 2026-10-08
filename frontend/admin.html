@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>系统管理 · 经营归因分析系统</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<header class="topbar" style="position:sticky;top:0;z-index:10;">
+  <div class="brand"><span class="mark">星</span> 系统管理台</div>
+  <div class="spacer"></div>
+  <div id="user-box" style="display:flex;align-items:center;gap:10px;"></div>
+</header>
+
+<div class="admin-page" id="admin-body">
+  <h1>运行状态与系统配置</h1>
+  <div class="admin-sub">配置修改后立即生效；被系统环境变量覆盖的项在界面上标注为只读。</div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <h2>运行状态 <span class="tag" id="stats-time"></span></h2>
+      <div id="stats" class="panel-empty">加载中…</div>
+    </div>
+
+    <div class="panel">
+      <h2>
+        工具自检
+        <button class="btn btn-sm btn-primary" id="run-selftest" type="button">执行自检</button>
+      </h2>
+      <div style="font-size:12px;color:var(--text-mute);margin-bottom:10px;">
+        逐个执行六个分析工具（数据库查询 / 文件读写 / 文本检索 / 命令执行 / 库结构查看），验证分析能力可用。
+      </div>
+      <div id="selftest-result" class="log-list"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>
+      数据源连接
+      <button class="btn btn-sm" id="refresh-ds" type="button">刷新</button>
+    </h2>
+    <div id="ds-list" class="attach-list"></div>
+  </div>
+
+  <div class="panel">
+    <h2>
+      系统配置
+      <span style="display:flex;gap:6px;">
+        <button class="btn btn-sm" id="reload-config" type="button">重载配置</button>
+        <button class="btn btn-sm btn-primary" id="save-config" type="button">保存并生效</button>
+      </span>
+    </h2>
+    <div id="config-list"></div>
+    <div class="composer-hint" style="margin-top:12px;">
+      <span id="config-status"></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>
+      运行日志
+      <span style="display:flex;gap:6px;">
+        <select id="log-level" class="btn btn-sm" style="padding:5px 8px;">
+          <option value="">全部级别</option>
+          <option value="info">info</option>
+          <option value="warning">warning</option>
+          <option value="error">error</option>
+        </select>
+        <button class="btn btn-sm" id="refresh-logs" type="button">刷新</button>
+      </span>
+    </h2>
+    <div id="log-list" class="log-list"></div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<script type="module" src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>聊天工作台 · 经营归因分析系统</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="workspace">
+  <header class="topbar">
+    <div class="brand"><span class="mark">星</span> 经营归因分析系统</div>
+    <span class="tag tag-primary" id="conv-title">未选择会话</span>
+    <div class="spacer"></div>
+    <div id="user-box" style="display:flex;align-items:center;gap:10px;"></div>
+  </header>
+
+  <!-- 左侧：会话列表 -->
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title">
+        <h2>会话</h2>
+        <button class="btn btn-sm btn-primary" id="new-conv" type="button">新建</button>
+      </div>
+    </div>
+    <div class="conv-list" id="conv-list"></div>
+  </aside>
+
+  <!-- 中间：消息区 + 输入框 -->
+  <main class="main">
+    <div class="chat-scroll" id="chat-scroll"></div>
+    <div class="composer">
+      <div class="composer-row">
+        <textarea id="composer-input" placeholder="描述你的经营问题，例如：近30天各品类的搜索曝光到转化漏斗表现如何？"
+                  disabled></textarea>
+        <button class="btn btn-primary" id="send-btn" type="button" disabled>发送</button>
+      </div>
+      <div class="composer-hint">
+        <span>Ctrl / Cmd + Enter 发送</span>
+        <span>可先新建会话并上传附件，再提问</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- 右侧：附件侧栏 / 实时任务区 / 结果区 -->
+  <aside class="aside">
+    <div class="tabs">
+      <button class="tab active" data-tab="result" type="button">分析结果</button>
+      <button class="tab" data-tab="task" type="button">实时任务</button>
+      <button class="tab" data-tab="attach" type="button">附件</button>
+    </div>
+
+    <div class="tab-body" data-tab="result" id="result-panel"></div>
+    <div class="tab-body" data-tab="task" id="task-panel" hidden></div>
+
+    <div class="tab-body" data-tab="attach" hidden>
+      <div class="upload-zone" id="upload-zone">
+        点击或拖拽文件到此处上传<br>
+        <span style="font-size:11.5px;">支持 CSV / TXT / MD / JSON / LOG / XLSX</span>
+      </div>
+      <input type="file" id="file-input" multiple hidden
+             accept=".csv,.txt,.md,.json,.log,.xlsx,.xlsm">
+      <div class="attach-list" id="attach-list"></div>
+    </div>
+  </aside>
+</div>
+
+<div id="toasts"></div>
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

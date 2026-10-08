@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>经营归因分析系统</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="center-page">
+  <div class="hero">
+    <div class="logo-lg">星</div>
+    <h1>经营归因分析系统</h1>
+    <p class="lead">围绕一个业务问题持续追问，系统自动查询数据、检索资料、执行工具，<br>输出可追溯的归因结论与下一步建议。</p>
+
+    <div class="card panel">
+      <button class="btn btn-primary" id="login-btn" type="button">前往认证中心登录</button>
+      <div id="session-hint" class="attach-item" style="margin-top:14px;display:none;">
+        <div class="an">检测到已有登录态</div>
+        <div class="am"><span id="session-who"></span></div>
+        <div class="aa">
+          <button class="btn btn-sm" id="continue-btn" type="button">进入工作台</button>
+          <button class="btn btn-sm btn-ghost" id="switch-btn" type="button">切换账号</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature"><div class="ft">实时分析过程</div><div class="fd">长连接推送步骤、工具调用与增量结论</div></div>
+      <div class="feature"><div class="ft">六段式结果</div><div class="fd">问题定义 / 指标 / 证据 / 结论 / 缺口 / 建议</div></div>
+      <div class="feature"><div class="ft">多轮追问</div><div class="fd">上下文自动摘要压缩，旧会话可继续追问</div></div>
+      <div class="feature"><div class="ft">结果可导出</div><div class="fd">Markdown 报告落盘，随时重新下载</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<script type="module">
+  import { logout, roleLabel, sessionState, startLogin } from '/js/auth.js';
+
+  document.getElementById('login-btn').addEventListener('click', () => startLogin());
+  document.getElementById('continue-btn').addEventListener('click', () => { window.location.href = '/app'; });
+  document.getElementById('switch-btn').addEventListener('click', async () => {
+    await logout();
+  });
+
+  // 已登录则直接提示进入工作台，避免重复授权
+  const state = await sessionState();
+  if (state.authenticated) {
+    document.getElementById('session-who').textContent =
+      `${state.user.display_name}（${roleLabel(state.user.role)}）`;
+    document.getElementById('session-hint').style.display = '';
+    document.getElementById('login-btn').textContent = '重新登录';
+  }
+</script>
+</body>
+</html>

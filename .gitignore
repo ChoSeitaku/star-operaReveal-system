@@ -1,0 +1,19 @@
+# 运行时数据（数据库、上传/导出/工作区、日志、会话密钥）
+data/
+# 生成的情景演示库
+db/demo/*.db
+
+# 环境变量
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# IDE
+.idea/
+
+# 测试产物
+.pytest_cache/
