@@ -6,6 +6,7 @@
 """
 from __future__ import annotations
 
+import re
 import secrets
 import time
 from urllib.parse import quote, urlencode
@@ -39,10 +40,19 @@ def _verify_state(state: str) -> bool:
 def _callback_url() -> str:
     return f"{config.public_base_url()}/auth/callback"
 
+def _auth_center_url() -> str:
+    """认证中心对外地址：未显式配置时跟随 PUBLIC_BASE_URL，仅把端口换成认证中心端口。"""
+    configured = config.get("auth.auth_center_url")
+    if configured and configured != config.CONFIG_DEFAULTS["auth.auth_center_url"]:
+        return configured.rstrip("/")
+    base = config.public_base_url()
+    if not base:
+        return configured.rstrip("/")
+    return re.sub(":" + chr(92) + "d+$", "", base) + f":{config.auth_port()}"
 
 @router.get("/auth/login", summary="跳转到认证中心发起授权登录")
 async def login() -> RedirectResponse:
-    auth_center = config.get("auth.auth_center_url").rstrip("/")
+    auth_center = _auth_center_url()
     params = {
         "client_id": config.get("auth.client_id"),
         "redirect_uri": _callback_url(),

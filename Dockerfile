@@ -1,20 +1,19 @@
 # syntax=docker/dockerfile:1
 # 前端为零构建静态页（frontend/ 直接随镜像分发），仅需 Python 运行时
 FROM python:3.12-slim
-ARG UV_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+ARG UV_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    UV_INDEX_URL=$UV_INDEX_URL \
-    UV_NO_COMPILE_BYTECODE=1
-
-RUN pip install --no-cache-dir -i "$UV_INDEX_URL" uv
+    PIP_INDEX_URL=$UV_INDEX_URL \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
 # 依赖单独一层：pyproject 不变时可复用构建缓存
+# 注：直接用 pip 安装（不再依赖 uv，部分镜像源会拒发 uv 的 wheel），并剔掉 requirements 里的注释与空行
 COPY pyproject.toml ./
-RUN python -c "import tomllib; print('\n'.join(tomllib.load(open('pyproject.toml','rb'))['project']['dependencies']))" > /tmp/req.txt \
- && uv pip install --system --no-cache -r /tmp/req.txt \
+RUN python -c "import tomllib; print('\n'.join(x for x in tomllib.load(open('pyproject.toml','rb'))['project']['dependencies'] if x.strip() and not x.strip().startswith('#')))" > /tmp/req.txt \
+ && pip install --no-cache-dir -r /tmp/req.txt \
  && rm /tmp/req.txt
 
 COPY . .

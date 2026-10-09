@@ -31,7 +31,7 @@ CONFIG_DEFAULTS: dict[str, str] = {
     "llm.base_url": "https://api.deepseek.com/anthropic",
     "llm.api_key": "",
     "llm.model": "deepseek-v4-pro",
-    "llm.max_tokens": "4096",
+    "llm.max_tokens": "8192",
     "llm.max_agent_steps": "14",
     "llm.timeout_seconds": "180",
     "llm.temperature": "0.2",
